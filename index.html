@@ -1,682 +1,768 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Candidate Assessment System - Complete MVP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
-        
-        .card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            transition: transform 0.2s;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-        }
-        
-        .status-selected {
-            background-color: #c6f6d5;
-            color: #22543d;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-        
-        .status-rejected {
-            background-color: #fed7d7;
-            color: #742a2a;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-        
-        .status-hold {
-            background-color: #feebc8;
-            color: #7c2d12;
-            padding: 0.5rem 1rem;
-            border-radius: 20px;
-        }
-        
-        pre {
-            background: #f7fafc;
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Madhavi Muttukuru | Data Analyst</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #050810;
+      --bg2: #080d1a;
+      --cyan: #00e5ff;
+      --purple: #7c3aed;
+      --pink: #f472b6;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --glass: rgba(255,255,255,0.03);
+      --glass-border: rgba(0,229,255,0.12);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--cyan);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s;
+      mix-blend-mode: screen;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,0.4);
+      border-radius: 50%;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: all 0.18s ease;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .orb { position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0; }
+    .orb1 { width: 500px; height: 500px; background: rgba(0,229,255,0.06); top: -100px; left: -100px; }
+    .orb2 { width: 400px; height: 400px; background: rgba(124,58,237,0.07); bottom: 100px; right: -100px; }
+    .orb3 { width: 300px; height: 300px; background: rgba(244,114,182,0.05); top: 50%; left: 50%; }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 16px 6%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      backdrop-filter: blur(20px);
+      background: rgba(5,8,16,0.88);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 18px;
+      color: var(--cyan);
+      letter-spacing: 2px;
+    }
+
+    nav ul { list-style: none; display: flex; gap: 30px; }
+    nav ul li a {
+      text-decoration: none;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: 0.3s;
+      position: relative;
+    }
+    nav ul li a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px; left: 0;
+      width: 0; height: 1px;
+      background: var(--cyan);
+      transition: 0.3s;
+    }
+    nav ul li a:hover { color: var(--cyan); }
+    nav ul li a:hover::after { width: 100%; }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px; height: 2px;
+      background: var(--cyan);
+      border-radius: 2px;
+      transition: 0.3s;
+    }
+
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      top: 58px; left: 0; right: 0;
+      background: rgba(5,8,16,0.98);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 16px 6% 24px;
+      z-index: 99;
+      flex-direction: column;
+      gap: 0;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      text-decoration: none;
+      color: var(--text);
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--glass-border);
+      transition: 0.3s;
+    }
+    .mobile-menu a:last-child { border-bottom: none; }
+    .mobile-menu a:hover { color: var(--cyan); padding-left: 8px; }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      padding: 100px 6% 70px;
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .hero-content { max-width: 750px; }
+
+    .hero-tag {
+      display: inline-block;
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      border: 1px solid var(--glass-border);
+      padding: 6px 16px;
+      border-radius: 20px;
+      margin-bottom: 28px;
+      background: rgba(0,229,255,0.05);
+      animation: fadeUp 0.8s ease both;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(42px, 8vw, 90px);
+      font-weight: 800;
+      line-height: 1.0;
+      margin-bottom: 22px;
+      animation: fadeUp 0.8s 0.1s ease both;
+    }
+
+    .hero h1 .name-line { display: block; color: #ffffff; }
+    .hero h1 .highlight {
+      display: block;
+      background: linear-gradient(135deg, var(--cyan), var(--purple), var(--pink));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 520px;
+      margin-bottom: 36px;
+      animation: fadeUp 0.8s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      animation: fadeUp 0.8s 0.3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--cyan);
+      color: var(--bg);
+      padding: 12px 28px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: 0.3s;
+      font-family: 'DM Mono', monospace;
+    }
+    .btn-primary:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 0 30px rgba(0,229,255,0.4); }
+
+    .btn-outline {
+      border: 1px solid var(--glass-border);
+      color: var(--text);
+      padding: 12px 28px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-size: 12px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: 0.3s;
+      font-family: 'DM Mono', monospace;
+    }
+    .btn-outline:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
+
+    .hero-visual {
+      position: absolute;
+      right: 6%; top: 50%;
+      transform: translateY(-50%);
+      width: 320px; height: 320px;
+      animation: fadeUp 1s 0.4s ease both;
+    }
+
+    .hex-ring {
+      width: 100%; height: 100%;
+      border: 1px solid rgba(0,229,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      animation: spinSlow 20s linear infinite;
+    }
+    .hex-ring::before {
+      content: '';
+      position: absolute;
+      width: 80%; height: 80%;
+      border: 1px solid rgba(124,58,237,0.2);
+      border-radius: 50%;
+      animation: spinSlow 12s linear infinite reverse;
+    }
+    .hex-ring::after {
+      content: '';
+      position: absolute;
+      width: 60%; height: 60%;
+      border: 1px solid rgba(244,114,182,0.15);
+      border-radius: 50%;
+      animation: spinSlow 8s linear infinite;
+    }
+    .hex-center {
+      width: 110px; height: 110px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.1), rgba(124,58,237,0.1));
+      border: 1px solid var(--glass-border);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--cyan);
+      letter-spacing: 1px;
+      text-align: center;
+      z-index: 1;
+      animation: glow 3s ease-in-out infinite;
+    }
+    .dot { position: absolute; width: 8px; height: 8px; background: var(--cyan); border-radius: 50%; box-shadow: 0 0 12px var(--cyan); }
+    .dot1 { top: 5%; left: 50%; }
+    .dot2 { top: 50%; right: 3%; background: var(--purple); box-shadow: 0 0 12px var(--purple); }
+    .dot3 { bottom: 10%; left: 20%; background: var(--pink); box-shadow: 0 0 12px var(--pink); }
+
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(0,229,255,0.2); }
+      50% { box-shadow: 0 0 40px rgba(0,229,255,0.5); }
+    }
+
+    .scroll-hint {
+      position: absolute;
+      bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      animation: bounce 2s ease-in-out infinite;
+    }
+    .scroll-line { width: 1px; height: 40px; background: linear-gradient(to bottom, var(--cyan), transparent); }
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* SECTIONS */
+    section { padding: 80px 6%; position: relative; z-index: 1; }
+
+    /* BRIGHT LABELS */
+    .label {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      font-weight: 500;
+    }
+
+    /* BRIGHT HEADINGS - WHITE NOT DARK */
+    .section-heading {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(28px, 5vw, 52px);
+      font-weight: 800;
+      margin-bottom: 45px;
+      color: #ffffff;
+    }
+    .section-heading span {
+      background: linear-gradient(135deg, #00e5ff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* ABOUT */
+    #about { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
+    .about-text { font-size: 14px; line-height: 2; color: #94a3b8; }
+    .about-text p { margin-bottom: 20px; }
+
+    .about-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .stat-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      padding: 22px;
+      transition: 0.3s;
+    }
+    .stat-card:hover { border-color: var(--cyan); transform: translateY(-4px); }
+    .stat-num { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; color: var(--cyan); line-height: 1; margin-bottom: 8px; }
+    .stat-label { font-size: 10px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; }
+
+    /* SKILLS */
+    #skills { background: var(--bg2); }
+    .skills-wrapper { max-width: 900px; }
+    .skill-group { margin-bottom: 30px; }
+    .skill-group-name {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 14px;
+      border-left: 2px solid var(--cyan);
+      padding-left: 12px;
+    }
+    .skill-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+    .skill-tag {
+      padding: 8px 18px;
+      border: 1px solid var(--glass-border);
+      border-radius: 3px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--text);
+      background: var(--glass);
+      transition: 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .skill-tag::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(0,229,255,0.1), transparent);
+      transition: 0.4s;
+    }
+    .skill-tag:hover::before { left: 100%; }
+    .skill-tag:hover { border-color: var(--cyan); color: var(--cyan); transform: translateY(-2px); }
+
+    /* PROJECTS */
+    .projects-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 22px; }
+    .project-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      padding: 30px;
+      transition: 0.4s;
+      position: relative;
+      overflow: hidden;
+    }
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: linear-gradient(90deg, var(--cyan), var(--purple));
+      transform: scaleX(0);
+      transition: 0.4s;
+    }
+    .project-card:hover::before { transform: scaleX(1); }
+    .project-card:hover { transform: translateY(-8px); border-color: rgba(0,229,255,0.25); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+    .project-num { font-family: 'Syne', sans-serif; font-size: 52px; font-weight: 800; color: rgba(0,229,255,0.08); line-height: 1; margin-bottom: 10px; }
+    .project-card h3 { font-family: 'Syne', sans-serif; font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #ffffff; }
+    .project-card p { font-size: 13px; line-height: 1.8; color: var(--muted); margin-bottom: 18px; }
+    .project-tech { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+    .tech-badge { font-size: 10px; letter-spacing: 1px; padding: 4px 10px; border-radius: 2px; background: rgba(0,229,255,0.08); color: var(--cyan); border: 1px solid rgba(0,229,255,0.15); }
+    .project-link { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--cyan); transition: 0.3s; }
+    .project-link:hover { gap: 14px; }
+
+    /* CONTACT */
+    #contact { background: var(--bg2); }
+    .contact-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: start; }
+    .contact-desc { font-size: 14px; line-height: 2; color: #94a3b8; margin-bottom: 35px; }
+    .contact-items { display: flex; flex-direction: column; gap: 16px; }
+    .contact-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 16px 20px;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      transition: 0.3s;
+      text-decoration: none;
+      color: var(--text);
+    }
+    .contact-item:hover { border-color: var(--cyan); transform: translateX(6px); }
+    .contact-icon { width: 36px; height: 36px; background: rgba(0,229,255,0.1); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .contact-info { display: flex; flex-direction: column; min-width: 0; }
+    .contact-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+    .contact-val { font-size: 12px; color: var(--text); margin-top: 2px; word-break: break-all; }
+
+    .contact-big {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(50px, 9vw, 110px);
+      font-weight: 800;
+      line-height: 0.9;
+      color: rgba(0,229,255,0.05);
+      letter-spacing: -3px;
+      user-select: none;
+    }
+
+    footer {
+      padding: 22px 6%;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    footer span { color: var(--cyan); }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width: 860px) {
+      body { cursor: auto; }
+      .cursor, .cursor-ring { display: none; }
+      .hero-visual { display: none; }
+      nav ul { display: none; }
+      .hamburger { display: flex; }
+
+      .hero { padding: 90px 6% 70px; text-align: center; justify-content: center; }
+      .hero-content { max-width: 100%; }
+      .hero-desc { margin: 0 auto 32px; }
+      .hero-btns { justify-content: center; }
+
+      #about { grid-template-columns: 1fr; gap: 40px; }
+      .contact-inner { grid-template-columns: 1fr; }
+      .contact-big { display: none; }
+      section { padding: 65px 5%; }
+    }
+
+    @media(max-width: 480px) {
+      .hero h1 { font-size: 36px; }
+      .section-heading { font-size: 26px; margin-bottom: 30px; }
+      .about-stats { grid-template-columns: 1fr 1fr; gap: 12px; }
+      .stat-num { font-size: 28px; }
+      .stat-card { padding: 16px; }
+      .projects-grid { grid-template-columns: 1fr; }
+      .hero-btns { flex-direction: column; align-items: stretch; }
+      .btn-primary, .btn-outline { text-align: center; }
+      footer { justify-content: center; text-align: center; }
+      .skill-tag { font-size: 11px; padding: 6px 12px; }
+    }
+  </style>
 </head>
-<body class="p-4">
-    
-    <div class="container mx-auto max-w-6xl">
-        
-        <!-- Header -->
-        <div class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-white mb-2">🎓 Candidate Assessment System</h1>
-            <p class="text-white text-lg">Complete HR Management - All in One File</p>
-        </div>
+<body>
 
-        <!-- Navigation Tabs -->
-        <div class="card p-6 mb-6">
-            <div class="flex flex-wrap gap-2 justify-center">
-                <button onclick="showPage('home')" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                    🏠 Home
-                </button>
-                <button onclick="showPage('register')" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                    ✍️ Take Test
-                </button>
-                <button onclick="showPage('admin')" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                    👤 Admin Panel
-                </button>
-            </div>
-        </div>
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
 
-        <!-- Home Page -->
-        <div id="homePage" class="page">
-            <div class="card p-8 text-center">
-                <h2 class="text-3xl font-bold mb-6">Welcome to Coding Assessment Portal</h2>
-                
-                <div class="grid md:grid-cols-2 gap-6 mb-8">
-                    <div class="border-2 border-blue-200 p-6 rounded-lg">
-                        <div class="text-5xl mb-4">👨‍🎓</div>
-                        <h3 class="text-xl font-semibold mb-3">For Candidates</h3>
-                        <p class="text-gray-600 mb-4">Register and take the online Python coding test</p>
-                        <button onclick="showPage('register')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                            Start Test →
-                        </button>
-                    </div>
-                    
-                    <div class="border-2 border-purple-200 p-6 rounded-lg">
-                        <div class="text-5xl mb-4">👔</div>
-                        <h3 class="text-xl font-semibold mb-3">For HR/Admin</h3>
-                        <p class="text-gray-600 mb-4">Manage tests, view results, send emails</p>
-                        <button onclick="showPage('admin')" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                            Admin Panel →
-                        </button>
-                    </div>
-                </div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
 
-                <div class="bg-blue-50 p-6 rounded-lg">
-                    <h4 class="font-semibold mb-3">✨ Features:</h4>
-                    <div class="grid md:grid-cols-3 gap-4 text-left">
-                        <div>
-                            <strong>📝 Easy Registration</strong>
-                            <p class="text-sm text-gray-600">Quick sign-up process</p>
-                        </div>
-                        <div>
-                            <strong>💻 Online Test</strong>
-                            <p class="text-sm text-gray-600">3 Python coding questions</p>
-                        </div>
-                        <div>
-                            <strong>⚡ Instant Results</strong>
-                            <p class="text-sm text-gray-600">Auto-evaluation & results</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <nav>
+    <div class="logo">MM</div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
 
-        <!-- Register Page -->
-        <div id="registerPage" class="page hidden">
-            <div class="card p-8 max-w-2xl mx-auto">
-                <h2 class="text-3xl font-bold mb-6 text-center">Candidate Registration</h2>
-                
-                <form id="registerForm" onsubmit="registerCandidate(event)">
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Full Name *</label>
-                        <input type="text" id="candName" class="w-full px-4 py-2 border rounded-lg" required>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Email Address *</label>
-                        <input type="email" id="candEmail" class="w-full px-4 py-2 border rounded-lg" required>
-                    </div>
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-semibold mb-2">Phone Number *</label>
-                        <input type="tel" id="candPhone" class="w-full px-4 py-2 border rounded-lg" required>
-                    </div>
-                    
-                    <button type="submit" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold">
-                        Register & Start Test →
-                    </button>
-                </form>
-            </div>
-        </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#home" onclick="closeMobile()">Home</a>
+    <a href="#about" onclick="closeMobile()">About</a>
+    <a href="#skills" onclick="closeMobile()">Skills</a>
+    <a href="#projects" onclick="closeMobile()">Projects</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+  </div>
 
-        <!-- Test Page -->
-        <div id="testPage" class="page hidden">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold mb-6 text-center">Python Coding Assessment</h2>
-                
-                <div class="bg-blue-50 p-4 rounded-lg mb-6">
-                    <strong>📋 Instructions:</strong>
-                    <ul class="list-disc ml-5 mt-2">
-                        <li>Answer all 3 questions</li>
-                        <li>Write clean Python code</li>
-                        <li>You can submit only once</li>
-                        <li>Results will be shown immediately</li>
-                    </ul>
-                </div>
-
-                <form id="testForm" onsubmit="submitTest(event)">
-                    <div class="space-y-6" id="questionsContainer">
-                        <!-- Questions will be inserted here -->
-                    </div>
-                    
-                    <div class="mt-8">
-                        <button type="submit" class="w-full py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold text-lg">
-                            🚀 Submit Test
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Result Page -->
-        <div id="resultPage" class="page hidden">
-            <div class="card p-8 max-w-3xl mx-auto text-center">
-                <h2 class="text-3xl font-bold mb-6">Your Test Results</h2>
-                
-                <div id="resultContent">
-                    <!-- Results will be inserted here -->
-                </div>
-                
-                <div class="mt-6">
-                    <button onclick="showPage('home')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        Back to Home
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Admin Panel -->
-        <div id="adminPage" class="page hidden">
-            <div class="card p-8">
-                <h2 class="text-3xl font-bold mb-6">Admin Dashboard</h2>
-                
-                <div class="grid md:grid-cols-4 gap-4 mb-8">
-                    <div class="bg-blue-50 p-4 rounded-lg text-center">
-                        <div class="text-3xl font-bold text-blue-600" id="totalCount">0</div>
-                        <div class="text-gray-600">Total Candidates</div>
-                    </div>
-                    <div class="bg-green-50 p-4 rounded-lg text-center">
-                        <div class="text-3xl font-bold text-green-600" id="selectedCount">0</div>
-                        <div class="text-gray-600">Selected</div>
-                    </div>
-                    <div class="bg-red-50 p-4 rounded-lg text-center">
-                        <div class="text-3xl font-bold text-red-600" id="rejectedCount">0</div>
-                        <div class="text-gray-600">Rejected</div>
-                    </div>
-                    <div class="bg-yellow-50 p-4 rounded-lg text-center">
-                        <div class="text-3xl font-bold text-yellow-600" id="holdCount">0</div>
-                        <div class="text-gray-600">On Hold</div>
-                    </div>
-                </div>
-
-                <div class="flex flex-wrap gap-4 mb-8">
-                    <button onclick="showAdminSection('candidates')" class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                        📊 View All Candidates
-                    </button>
-                    <button onclick="exportToExcel()" class="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                        📥 Export to Excel
-                    </button>
-                    <button onclick="showAdminSection('upload')" class="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                        📤 Upload & Send Emails
-                    </button>
-                    <button onclick="showAdminSection('questions')" class="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700">
-                        ❓ Manage Questions
-                    </button>
-                </div>
-
-                <!-- Admin Sections -->
-                <div id="adminCandidates" class="admin-section hidden">
-                    <h3 class="text-xl font-bold mb-4">All Candidates</h3>
-                    <div class="overflow-x-auto">
-                        <table class="w-full border-collapse" id="candidatesTable">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="border p-3 text-left">Name</th>
-                                    <th class="border p-3 text-left">Email</th>
-                                    <th class="border p-3 text-left">Phone</th>
-                                    <th class="border p-3 text-center">Score</th>
-                                    <th class="border p-3 text-center">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="candidatesTableBody">
-                                <!-- Candidates will be inserted here -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="adminUpload" class="admin-section hidden">
-                    <h3 class="text-xl font-bold mb-4">Upload Excel & Send Emails</h3>
-                    
-                    <div class="bg-blue-50 p-4 rounded-lg mb-4">
-                        <strong>📋 Excel Format:</strong>
-                        <p>Required columns: Name, Email, Status (Selected/Rejected/Hold)</p>
-                    </div>
-
-                    <input type="file" id="excelUpload" accept=".xlsx,.xls" class="mb-4 w-full p-3 border rounded-lg">
-                    <button onclick="processExcelUpload()" class="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700">
-                        Upload & Preview Emails
-                    </button>
-
-                    <div id="emailPreview" class="mt-6 hidden">
-                        <!-- Email previews will appear here -->
-                    </div>
-                </div>
-
-                <div id="adminQuestions" class="admin-section hidden">
-                    <h3 class="text-xl font-bold mb-4">Manage Questions</h3>
-                    
-                    <div id="questionsList" class="space-y-4 mb-6">
-                        <!-- Questions will be listed here -->
-                    </div>
-
-                    <div class="bg-green-50 p-6 rounded-lg">
-                        <h4 class="font-bold mb-4">Add New Question</h4>
-                        <div class="space-y-3">
-                            <input type="text" id="newQuestion" placeholder="Question text" class="w-full p-3 border rounded-lg">
-                            <textarea id="newAnswer" placeholder="Expected answer" rows="3" class="w-full p-3 border rounded-lg"></textarea>
-                            <button onclick="addQuestion()" class="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700">
-                                Add Question
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+  <section class="hero" id="home">
+    <div class="hero-content">
+      <div class="hero-tag">&#9679; Available for opportunities</div>
+      <h1>
+        <span class="name-line">Madhavi</span>
+        <span class="highlight">Muttukuru</span>
+      </h1>
+      <p class="hero-desc">
+        I work with data to build better decisions — crafting dashboards, extracting insights, and turning raw numbers into stories that actually matter.
+      </p>
+      <div class="hero-btns">
+        <a href="#projects" class="btn-primary">View Work →</a>
+        <a href="#contact" class="btn-outline">Get in Touch</a>
+      </div>
     </div>
 
-    <script>
-        // ==================== DATA STORAGE ====================
-        let candidates = JSON.parse(localStorage.getItem('candidates') || '[]');
-        let questions = JSON.parse(localStorage.getItem('questions') || JSON.stringify([
-            {
-                id: 1,
-                question: "Write a Python program to print 'Hello, World!'",
-                answer: 'print("Hello, World!")'
-            },
-            {
-                id: 2,
-                question: "Write a Python function that returns the sum of two numbers",
-                answer: "def add(a, b):\n    return a + b"
-            },
-            {
-                id: 3,
-                question: "Write a Python program to print numbers from 1 to 5",
-                answer: "for i in range(1, 6):\n    print(i)"
-            }
-        ]));
+    <div class="hero-visual">
+      <div class="hex-ring">
+        <div class="dot dot1"></div>
+        <div class="dot dot2"></div>
+        <div class="dot dot3"></div>
+        <div class="hex-center">DATA<br>ANALYST</div>
+      </div>
+    </div>
 
-        let currentCandidate = null;
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
 
-        // Save data to localStorage
-        function saveData() {
-            localStorage.setItem('candidates', JSON.stringify(candidates));
-            localStorage.setItem('questions', JSON.stringify(questions));
+  <section id="about">
+    <div>
+      <p class="label reveal">// about me</p>
+      <h2 class="section-heading reveal">Turning <span>Data</span><br>Into Insight</h2>
+      <div class="about-text reveal">
+        <p>I'm a data analyst passionate about making numbers speak clearly. With a background spanning Python, SQL, and web development, I approach every dataset with both technical rigor and a storyteller's instinct.</p>
+        <p>I believe the best dashboards don't just show data — they answer questions before they're asked. That's the experience I build toward.</p>
+      </div>
+    </div>
+    <div class="about-stats">
+      <div class="stat-card reveal"><div class="stat-num">2+</div><div class="stat-label">Projects Built</div></div>
+      <div class="stat-card reveal"><div class="stat-num">5+</div><div class="stat-label">Tools Mastered</div></div>
+      <div class="stat-card reveal"><div class="stat-num">100%</div><div class="stat-label">Committed</div></div>
+      <div class="stat-card reveal"><div class="stat-num">∞</div><div class="stat-label">Curiosity</div></div>
+    </div>
+  </section>
+
+  <section id="skills">
+    <p class="label reveal">// what i use</p>
+    <h2 class="section-heading reveal">Skills & <span>Tools</span></h2>
+    <div class="skills-wrapper">
+      <div class="skill-group reveal">
+        <div class="skill-group-name">Data & Analytics</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Python</span>
+          <span class="skill-tag">SQL</span>
+          <span class="skill-tag">Excel</span>
+          <span class="skill-tag">Power BI</span>
+          <span class="skill-tag">Data Visualization</span>
+          <span class="skill-tag">Storytelling with Data</span>
+        </div>
+      </div>
+      <div class="skill-group reveal">
+        <div class="skill-group-name">Development</div>
+        <div class="skill-tags">
+          <span class="skill-tag">HTML</span>
+          <span class="skill-tag">CSS</span>
+          <span class="skill-tag">JavaScript</span>
+          <span class="skill-tag">Dashboard Development</span>
+        </div>
+      </div>
+      <div class="skill-group reveal">
+        <div class="skill-group-name">Core Strengths</div>
+        <div class="skill-tags">
+          <span class="skill-tag">Problem Solving</span>
+          <span class="skill-tag">Insight Communication</span>
+          <span class="skill-tag">Data Cleaning</span>
+          <span class="skill-tag">Business Analysis</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <p class="label reveal">// recent work</p>
+    <h2 class="section-heading reveal">Featured <span>Projects</span></h2>
+    <div class="projects-grid">
+      <div class="project-card reveal">
+        <div class="project-num">01</div>
+        <h3>Smart Recruitment Dashboard</h3>
+        <p>Solves delayed candidate fee processing by automating recruitment workflows, managing candidate data, and surfacing hiring analytics in real time.</p>
+        <div class="project-tech">
+          <span class="tech-badge">HTML</span>
+          <span class="tech-badge">CSS</span>
+          <span class="tech-badge">JavaScript</span>
+          <span class="tech-badge">Python</span>
+        </div>
+        <a href="https://github.com/r190577-cmyk/recruitment-dashboard--for-Company" target="_blank" class="project-link">View on GitHub →</a>
+      </div>
+
+      <div class="project-card reveal">
+        <div class="project-num">02</div>
+        <h3>VoiceForDF — VoxAble</h3>
+        <p>Accessibility platform enabling seamless communication for deaf and mute users through intelligent voice and visual processing.</p>
+        <div class="project-tech">
+          <span class="tech-badge">HTML</span>
+          <span class="tech-badge">CSS</span>
+          <span class="tech-badge">JavaScript</span>
+          <span class="tech-badge">Python</span>
+        </div>
+        <a href="https://github.com/r190577-cmyk/Vocal-Deliver" target="_blank" class="project-link">View on GitHub →</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="contact-inner">
+      <div>
+        <p class="label reveal">// let's connect</p>
+        <h2 class="section-heading reveal">Get In <span>Touch</span></h2>
+        <p class="contact-desc reveal">Just starting out but deeply committed. If you're looking for someone hungry to learn, solve problems, and grow fast — let's talk.</p>
+        <div class="contact-items">
+          <a href="mailto:madhavimuttukuru0@gmail.com" class="contact-item reveal">
+            <div class="contact-icon">✉</div>
+            <div class="contact-info">
+              <span class="contact-label">Email</span>
+              <span class="contact-val">madhavimuttukuru0@gmail.com</span>
+            </div>
+          </a>
+          <a href="https://github.com/r190577-cmyk" target="_blank" class="contact-item reveal">
+            <div class="contact-icon">⌥</div>
+            <div class="contact-info">
+              <span class="contact-label">GitHub</span>
+              <span class="contact-val">github.com/r190577-cmyk</span>
+            </div>
+          </a>
+          <div class="contact-item reveal">
+            <div class="contact-icon">◎</div>
+            <div class="contact-info">
+              <span class="contact-label">Location</span>
+              <span class="contact-val">Chittoor, Andhra Pradesh</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="contact-big reveal">SAY<br>HELLO.</div>
+    </div>
+  </section>
+
+  <footer>
+    <span>© 2026 Madhavi Muttukuru</span>
+    <span>Designed with <span style="color:var(--pink)">♥</span> & code</span>
+  </footer>
+
+  <script>
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .skill-tag, .stat-card, .project-card, .contact-item').forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(2.5)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1.4)';
+        ring.style.borderColor = 'rgba(0,229,255,0.6)';
+      });
+      el.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.transform = 'translate(-50%,-50%) scale(1)';
+        ring.style.borderColor = 'rgba(0,229,255,0.4)';
+      });
+    });
+
+    // Hamburger menu
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    function closeMobile() { mobileMenu.classList.remove('open'); }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
         }
+      });
+    }, { threshold: 0.1 });
 
-        // ==================== PAGE NAVIGATION ====================
-        function showPage(pageName) {
-            document.querySelectorAll('.page').forEach(page => page.classList.add('hidden'));
-            document.getElementById(pageName + 'Page').classList.remove('hidden');
-            
-            if (pageName === 'admin') {
-                updateAdminStats();
-                showAdminSection('candidates');
-            }
-            
-            if (pageName === 'register') {
-                document.getElementById('registerForm').reset();
-            }
-        }
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
 
-        function showAdminSection(section) {
-            document.querySelectorAll('.admin-section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('admin' + section.charAt(0).toUpperCase() + section.slice(1)).classList.remove('hidden');
-            
-            if (section === 'candidates') {
-                displayCandidates();
-            } else if (section === 'questions') {
-                displayQuestions();
-            }
-        }
-
-        // ==================== CANDIDATE REGISTRATION ====================
-        function registerCandidate(event) {
-            event.preventDefault();
-            
-            currentCandidate = {
-                id: Date.now(),
-                name: document.getElementById('candName').value,
-                email: document.getElementById('candEmail').value,
-                phone: document.getElementById('candPhone').value,
-                registeredAt: new Date().toISOString(),
-                answers: [],
-                score: 0,
-                status: 'Pending'
-            };
-            
-            // Show test page with questions
-            loadTestQuestions();
-            showPage('test');
-        }
-
-        function loadTestQuestions() {
-            const container = document.getElementById('questionsContainer');
-            container.innerHTML = '';
-            
-            questions.forEach((q, index) => {
-                container.innerHTML += `
-                    <div class="border-2 border-gray-200 p-6 rounded-lg">
-                        <h4 class="text-lg font-semibold mb-3">
-                            <span class="bg-blue-600 text-white px-3 py-1 rounded">Q${index + 1}</span>
-                            ${q.question}
-                        </h4>
-                        <textarea 
-                            id="answer_${q.id}" 
-                            rows="5" 
-                            class="w-full p-3 border rounded-lg font-mono text-sm"
-                            placeholder="Write your Python code here..."
-                            required
-                        ></textarea>
-                    </div>
-                `;
-            });
-        }
-
-        // ==================== TEST SUBMISSION ====================
-        function submitTest(event) {
-            event.preventDefault();
-            
-            let score = 0;
-            const answers = [];
-            
-            questions.forEach(q => {
-                const userAnswer = document.getElementById('answer_' + q.id).value.trim().toLowerCase();
-                const expectedAnswer = q.answer.trim().toLowerCase();
-                
-                answers.push({
-                    questionId: q.id,
-                    question: q.question,
-                    userAnswer: document.getElementById('answer_' + q.id).value,
-                    correct: userAnswer.includes(expectedAnswer) || expectedAnswer.includes(userAnswer)
-                });
-                
-                if (userAnswer.includes(expectedAnswer) || expectedAnswer.includes(userAnswer)) {
-                    score++;
-                }
-            });
-            
-            currentCandidate.answers = answers;
-            currentCandidate.score = score;
-            
-            // Determine status
-            if (score >= 3) {
-                currentCandidate.status = 'Selected';
-            } else if (score >= 2) {
-                currentCandidate.status = 'Hold';
-            } else {
-                currentCandidate.status = 'Rejected';
-            }
-            
-            candidates.push(currentCandidate);
-            saveData();
-            
-            showResults();
-        }
-
-        function showResults() {
-            const container = document.getElementById('resultContent');
-            const c = currentCandidate;
-            
-            let statusClass = 'status-hold';
-            let statusIcon = '⏳';
-            let statusMessage = 'Your application is under review.';
-            
-            if (c.status === 'Selected') {
-                statusClass = 'status-selected';
-                statusIcon = '✅';
-                statusMessage = 'Congratulations! You have been selected. We will contact you soon.';
-            } else if (c.status === 'Rejected') {
-                statusClass = 'status-rejected';
-                statusIcon = '❌';
-                statusMessage = 'Thank you for your interest. We encourage you to apply for future opportunities.';
-            }
-            
-            container.innerHTML = `
-                <div class="mb-6">
-                    <h3 class="text-2xl font-semibold mb-2">Hello, ${c.name}!</h3>
-                    <p class="text-gray-600">${c.email}</p>
-                </div>
-
-                <div class="grid md:grid-cols-2 gap-6 mb-6">
-                    <div class="bg-blue-50 p-6 rounded-lg">
-                        <div class="text-5xl font-bold text-blue-600 mb-2">${c.score}/3</div>
-                        <div class="text-gray-700">Your Score</div>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg">
-                        <div class="text-4xl mb-2">${statusIcon}</div>
-                        <div class="mb-2"><span class="${statusClass}">${c.status}</span></div>
-                        <div class="text-gray-700">Status</div>
-                    </div>
-                </div>
-
-                <div class="bg-blue-50 p-6 rounded-lg mb-6">
-                    <p class="text-lg">${statusMessage}</p>
-                </div>
-
-                <div class="text-left bg-gray-50 p-6 rounded-lg">
-                    <h4 class="font-bold mb-3">Your Answers:</h4>
-                    ${c.answers.map((a, i) => `
-                        <div class="mb-4">
-                            <p class="font-semibold mb-2">Q${i+1}: ${a.question}</p>
-                            <pre class="text-sm">${a.userAnswer}</pre>
-                            <p class="mt-1 ${a.correct ? 'text-green-600' : 'text-red-600'}">
-                                ${a.correct ? '✓ Correct' : '✗ Incorrect'}
-                            </p>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            
-            showPage('result');
-        }
-
-        // ==================== ADMIN FUNCTIONS ====================
-        function updateAdminStats() {
-            document.getElementById('totalCount').textContent = candidates.length;
-            document.getElementById('selectedCount').textContent = candidates.filter(c => c.status === 'Selected').length;
-            document.getElementById('rejectedCount').textContent = candidates.filter(c => c.status === 'Rejected').length;
-            document.getElementById('holdCount').textContent = candidates.filter(c => c.status === 'Hold').length;
-        }
-
-        function displayCandidates() {
-            const tbody = document.getElementById('candidatesTableBody');
-            
-            if (candidates.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="border p-4 text-center text-gray-500">No candidates yet</td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = candidates.map(c => `
-                <tr>
-                    <td class="border p-3">${c.name}</td>
-                    <td class="border p-3">${c.email}</td>
-                    <td class="border p-3">${c.phone}</td>
-                    <td class="border p-3 text-center font-bold">${c.score}/3</td>
-                    <td class="border p-3 text-center">
-                        <span class="status-${c.status.toLowerCase()}">${c.status}</span>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function exportToExcel() {
-            if (candidates.length === 0) {
-                alert('No candidates to export!');
-                return;
-            }
-
-            const data = candidates.map(c => ({
-                Name: c.name,
-                Email: c.email,
-                Phone: c.phone,
-                Score: c.score,
-                Status: c.status,
-                'Registered At': new Date(c.registeredAt).toLocaleString()
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Candidates');
-            XLSX.writeFile(wb, `candidates_${Date.now()}.xlsx`);
-            
-            alert('Excel file downloaded!');
-        }
-
-        function processExcelUpload() {
-            const file = document.getElementById('excelUpload').files[0];
-            if (!file) {
-                alert('Please select an Excel file first!');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, { type: 'array' });
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
-
-                displayEmailPreviews(jsonData);
-            };
-            reader.readAsArrayBuffer(file);
-        }
-
-        function displayEmailPreviews(data) {
-            const container = document.getElementById('emailPreview');
-            container.classList.remove('hidden');
-            
-            const emailTemplates = {
-                'Selected': {
-                    subject: 'Congratulations - You\'re Selected! 🎉',
-                    body: 'We are thrilled to inform you that you have been selected!\n\nWelcome to the team!'
-                },
-                'Rejected': {
-                    subject: 'Application Update',
-                    body: 'Thank you for your interest. We encourage you to apply for future openings.'
-                },
-                'Hold': {
-                    subject: 'Application Status Update',
-                    body: 'We are currently reviewing applications. We will update you soon.'
-                }
-            };
-            
-            container.innerHTML = `
-                <h4 class="font-bold mb-4">Email Previews (${data.length} emails):</h4>
-                <div class="space-y-4 max-h-96 overflow-y-auto">
-                    ${data.map(row => {
-                        const status = row.Status || row.status;
-                        const template = emailTemplates[status] || emailTemplates['Hold'];
-                        const name = row.Name || row.name || 'Candidate';
-                        const email = row.Email || row.email;
-                        
-                        return `
-                            <div class="border p-4 rounded-lg bg-white">
-                                <div class="flex justify-between items-start mb-2">
-                                    <div>
-                                        <strong>${name}</strong>
-                                        <div class="text-sm text-gray-600">${email}</div>
-                                    </div>
-                                    <span class="status-${status.toLowerCase()}">${status}</span>
-                                </div>
-                                <div class="text-sm bg-gray-50 p-3 rounded mt-2">
-                                    <div class="font-semibold mb-1">Subject: ${template.subject}</div>
-                                    <div class="text-gray-700">${template.body}</div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="mt-4 bg-green-50 p-4 rounded-lg">
-                    <p class="text-green-800">
-                        ✅ Preview complete! In production, these ${data.length} emails would be sent via SMTP.
-                    </p>
-                </div>
-            `;
-        }
-
-        function displayQuestions() {
-            const container = document.getElementById('questionsList');
-            container.innerHTML = questions.map((q, index) => `
-                <div class="border p-4 rounded-lg">
-                    <div class="flex justify-between items-start">
-                        <div class="flex-grow">
-                            <h4 class="font-semibold mb-2">Q${index + 1}: ${q.question}</h4>
-                            <pre class="text-sm bg-gray-50 p-2 rounded">${q.answer}</pre>
-                        </div>
-                        <button onclick="deleteQuestion(${q.id})" class="ml-4 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600">
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function addQuestion() {
-            const question = document.getElementById('newQuestion').value;
-            const answer = document.getElementById('newAnswer').value;
-            
-            if (!question || !answer) {
-                alert('Please fill in both fields!');
-                return;
-            }
-            
-            questions.push({
-                id: Date.now(),
-                question: question,
-                answer: answer
-            });
-            
-            saveData();
-            displayQuestions();
-            
-            document.getElementById('newQuestion').value = '';
-            document.getElementById('newAnswer').value = '';
-            
-            alert('Question added successfully!');
-        }
-
-        function deleteQuestion(id) {
-            if (confirm('Delete this question?')) {
-                questions = questions.filter(q => q.id !== id);
-                saveData();
-                displayQuestions();
-            }
-        }
-
-        // ==================== INITIALIZE ====================
-        window.onload = function() {
-            showPage('home');
-        };
-    </script>
 </body>
 </html>
